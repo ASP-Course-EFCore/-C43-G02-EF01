@@ -4,7 +4,11 @@
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            #region Part 01 What is EF Core
+
+            //Done In NoteBook.
+
+            #endregion
         }
     }
 }
