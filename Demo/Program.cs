@@ -87,6 +87,17 @@ namespace Demo
             ///So I have 10 place in program/App depend on object from class "CompanyDBContext" => Dependency.
             ///And Run Time provide those objects to me throw injection => Injection.
 
+
+            //1st Step Summary => Connect App to DB
+            //- Create object from class that responsible for dealing with DB "CompanyDBContext" that inherit from base class "DBContext"
+            //- When make object from class "CompanyDBContext" using parameterless constructor of class "CompanyDBContext"
+            //  we found that the parameterless constructor of child class "CompanyDBContext" chain on parameterless constructor of base class "DBContext"
+            //- And Found that the parameterless constructor of base class "DBContext" also make chain on Constructor called "DBContext(DbContextOption options)"
+            //  that take parameter [object of type class DbContextOption]
+            //-And to make object from this class "DbContextOption", we must make override on method "DBContext.OnConfiguring(DBContextOptionsBuilder optionsBuilder)"
+            // In our child class "CompanyDBContext" to specify the "optionBuilder" which is the "connectionString" by calling the method that represent the db provider throw optionsBuilder object.
+            // optionsBuilder.UseSqlServer("Server = .; Database = Company; Trusted_Connection = true");
+            
             #endregion
 
         }
