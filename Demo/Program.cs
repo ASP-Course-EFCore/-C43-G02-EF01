@@ -24,13 +24,13 @@ namespace Demo
             ///1st Feature in EF Core => Automatic Schema Migration [Mapping]. 
             ///We always first make folder called Data Contain => 
             /// 1- DBContext Class => Name of it must end with "DBContext"
-            /// 2- Boko Classes || Domain Models|| Entities || Classes Represent structure of Tables,Views of Database
+            /// 2- POCO Classes || Domain Models|| Entities || Classes Represent structure of Tables,Views of Database
             ///     Domain Models => Means The Models Specific to business domain
             ///     Represent Models/Classes That will be Tables in the database of the busineess
             ///     Like SuperMarket Business Has DomainModels Like => [Customers - Products - Sales] Tables
             ///     So, objects that we retrieve it from DB called business objects
             ///
-            ///     BokoClasses => each BokoClass represent table in DB - and Only Contain Properties, each property represent column in database 
+            ///     POCOClasses => each POCOClass represent table in DB - and Only Contain Properties, each property represent column in database 
             ///
             /// 3- Migrations 
             ///
@@ -97,7 +97,28 @@ namespace Demo
             //-And to make object from this class "DbContextOption", we must make override on method "DBContext.OnConfiguring(DBContextOptionsBuilder optionsBuilder)"
             // In our child class "CompanyDBContext" to specify the "optionBuilder" which is the "connectionString" by calling the method that represent the db provider throw optionsBuilder object.
             // optionsBuilder.UseSqlServer("Server = .; Database = Company; Trusted_Connection = true");
-            
+
+            #endregion
+
+            #region Part 04 Mapping Ways - 1. By Convention
+            ///Now We need to make the Domain Models => Classes Represent Structure of DB Entities-Tables
+            ///So make new folder inside "Data" folder called "Models" To Add Domain Models Classes inside it.
+            ///And for each domain model, there is property of type "DBSet<DomainModel> DomainModels" inside the class "CompanyDBContext" That responsible for dealing with DB.
+            ///
+            ///EF Core Support 4 Ways for mapping the code (DBContext Class , Domain Models) to Database Objects(Tables,Views,....)
+            /// 1- By Convention (Default Behavior) => EF Core Make Mapping Decisions Based on code/Syntax you write - I Don't do any effort to tell EF How to mapping.
+            ///
+            ///   If EF Core Found in Domain Class => 
+            ///     - Public Numeric Property Named as "Id" or "ClassName+Id" => Will Be Mapped As Primary Key column with identity [1,1] on the column.
+            ///     - Reference Types "string" property [Not Nullable] => Mapped as column of type "nVarchar(max)" with constraint not allow null[Required].
+            ///     - Nullable Reference Types "string?" property => Mapped as column of type "nVarchar(max)" with constraint allow null [optional].
+            ///     - Non-Nullable ValueType "double" property => Mapped as column of type "float" with constraint not allow null [Required]
+            ///     - Nullable ValueType "int?" property => Mapped as column of type "int" with constraint allow null [optional]
+            ///
+
+
+            //Next step is => using EF Core To Generate DB Objects [Tables - Views - ... ] throw My Code
+            //This Will Done Using "Migration".
             #endregion
 
         }
