@@ -36,7 +36,7 @@ namespace Demo.Data
             //This connection string syntax is legacy, so now they make new meaning full connection string
             // but this still work
 
-            optionsBuilder.UseSqlServer("Server = .; Database = Company; Trusted_Connection = true");//Trust App To connect on sql server service throw Windows authentication.
+            optionsBuilder.UseSqlServer("Server = .; Database = Company; Trusted_Connection = true; Encrypt = True; TrustServerCertificate = True");//Trust App To connect on sql server service throw Windows authentication.
         }
         //So now the App is connected on sql server service throw my server/Laptop. 
 
