@@ -12,8 +12,10 @@ namespace Demo.Data
     {
         #region Properties
 
-        public DbSet<Employee> Employees { get; set; }//Mapped As "Employees" Table in DB and structure[Column - Constraints - ...] of this table is the structure of class "Employee". 
-
+        //public DbSet<Employee>? Employees { get; set; }//Mapped As "Employees" Table in DB and structure[Column - Constraints - ...] of this table is the structure of class "Employee". 
+        //public DbSet<Department>? Departments { get; set; }//DbSet<Employee> => Tell it that the structure of table "Departments" will be same of the structure inside class "Department".
+        //public DbSet<Product>? Products { get; set; }//DbSet<Product> => Tell it that the structure of table "Products" will be same of the structure inside class "Product".
+        //public DbSet<Project>? Projects { get; set; }//DbSet<Project> => Tell it that the structure of table "Projects" will be same of the structure inside class "Project".
         #endregion
 
         #region Constructors

@@ -341,6 +341,120 @@ namespace Demo
             ///  - If you now run Add - Migration Fix, EF Core might generate incorrect changes because the snapshot is out of sync.
             ///  - To fix this, you should manually remove migrations using Remove-Migration before rolling back.
 
+            #endregion
+
+            #region Part 06 Migration - More Details
+
+            ///The Default is When i work CodeFirst =>
+            ///Any Change That i do, i Apply it to DataBase throw Migration
+            ///This not mean that the migration will contain only one change 
+            ///أنا بعمل الميجريشن لما يكون في شوية حاجات او تعديلات في دماغي حاليا عملتها فمحتاج اطبقها على الداتا بيز فبعملها في ميجريشن 
+            ///And if there is another change, i will migration for it.
+            ///[Note] => Don't Modify or Delete The Migration Files or DbContextSnapShot File.
+            ///Because if i delete like one of the migration files and may be this file applied to DB
+            ///If i need to send my project to my friend or try to open this project on production server
+            ///And when Apply the migration files to create and fulfill the DB.
+            ///Found like there is table Lost, because this table is made into the migration file which i delete it.
+            ///
+            ///So Any change => make migration for it.
+            ///make Update-Database to specific migration if you need to roll back All migrations
+            ///after this migration that you need to update database to it.
+            ///
+            ///Example => Let's make:
+            ///Model/Table Employee and put property of type DbSet<Employee> employees inside DbContext class => Make "Migration01" for this change
+            ///Model/Table Department and put property of type DbSet<Department> Departments inside DbContext class => Make "Migration02" for this change
+            ///Model/Table [Project & Product] and put property of type DbSet<Project> Projects & DbSet<Product> Products inside  DbContext class => Make "Migration03" for this change
+            ///
+            ///I need now to RollBack "Migration02" =>
+            ///1- I can update database to "migration01" => but this will execute the "Down()" method for all migrations before "migration01"
+            ///   Which mean drop table "Project&Product" & "Department" => Those are changes done in migration03 & migration02.
+            ///==== But This is not true because we lost data of tables "Project&Product" and we only need to drop table "Department" in migration02.
+            ///2- Remove The Property DbSet<Department> Departments from DbContext Class and add "migration04" for this change
+            ///   And then Update-Database to Apply this pending migration which will delete table Department from Database.
+            ///
+            ///Steps =>
+            ///1- Create Employee Class/Table and put property DbSet<Employee> Employees inside DbContext Class to map it as table in DB.
+            ///   -[Add-Migration "Migration01" -OutputDir "Data/Migrations"]
+            ///     This is the first migration so
+            ///      -The File Of the migration01 will created contain Up() contain creating the table "Employees" and Down() contain drop the table "Employees".
+            ///      -The DbContextSnapShot file will created and state of it is the state of last migration which is "Migration01" - Contain one Entity "Employee"
+            ///   -[Update-Database]
+            ///     This Will Go to DB and search inside  table "EfMigrationHistory" on any MigrationFile Called "Migration01"
+            ///     And it will found that there is no migration with this name so write this migration into this table and apply changes of this migration on DB.
+            ///     To Apply The bending "Migration01" and create table "Employees" in DB
+            ///
+            ///2- Create Department Class/Table and put property DbSet<Department> Departments inside DbContext Class to map it as table in DB.
+            ///   -[Add-Migration "Migration02"]
+            ///     This is the second migration so
+            ///      -Will Compare The state of snapShot With the state of migration that i need to add
+            ///      -Found That there is difference, so update the snapShot file with state of this migration [Add Department Entity] And Add this "Migration02" file
+            ///      -The File Of the migration02 will created contain Up() contain creating the table "Departments" and Down() contain drop the table "Departments".
+            ///   -[Update-Database]
+            ///     This Will Go to DB and search inside  table "EfMigrationHistory" on any MigrationFile Called "Migration02"
+            ///     And it will found that there is no migration with this name so write this migration into this table and apply changes of this migration on DB.
+            ///     To Apply The bending "Migration02" and create table "Departments" in DB
+            ///
+            ///3- Create [Product&Project] Class/Table and put property DbSet<Product> Products & DbSet<Project> Projects inside DbContext Class to map it as tables in DB.
+            ///   -[Add-Migration "Migration03"]
+            ///     This is the Third migration so
+            ///      -Will Compare The state of snapShot With the state of migration that i need to add
+            ///      -Found That there is difference, so update the snapShot file with state of this migration [Add Product&Project Entities] And Add this "Migration02" file
+            ///      -The File Of the migration03 will created contain Up() contain creating the tables "Products&Projects" and Down() contain drop the tables "Products&Projects".
+            ///   -[Update-Database]
+            ///     This Will Go to DB and search inside  table "EfMigrationHistory" on any MigrationFile Called "Migration03"
+            ///     And it will found that there is no migration with this name so write this migration into this table and apply changes of this migration on DB.
+            ///     To Apply The bending "Migration03" and create table "Products&Projects" in DB
+            ///
+            ///
+            ///Now => The Task is RollBack The "Migration02" without RollBack "Migration02"
+            ///1- If You Say [Update-Database "Migration01"] => This Will RollBack (Execute method Down()) of All migrations that after "Migration01"
+            ///   Mean That Drop Table "Products&Projects" that made inside "Migration03" and Drop Table "Department" that made inside "Migration02"
+            ///   But The Files of migrations still exists and "DbContextSnapShot" File still has the state of last migration "Migration03" which i make tables "Products&Projects" in it.
+            ///
+            ///2- We need to RollBack "Migration02" which in it we make the table "Departments".
+            ///    -So We will remove this Table/Property [DbSet<Department> Departments] from class "DbContext"
+            ///    -No Need To Remove The Domain Model "Department" => لإنه ملوش علاقه بالداتا بيز حتى لو مسحته من الكود مش هيتمسح من الداتا بيز ، فاحنا بنمسح من الكونتكست كلاس عشان  دا اللي بيتعامل مع الداتا بثيز وبيأثر فيها
+            ///    -And then Add-Migration "Migration04" for this change "Remove Table "Departments" from DbContext "
+            ///    -So compare DbContextSnapShot file With this new migration, found that DbContextFile contain entity "Departments" and the "Migration04" Drop it, so update the DbContextSnapShot With the state of this migration.
+            ///    -And Update-Database to Reflect this change [Drop Departments table from DB].
+            ///    -Go To EfMigrationHistory column to see if in it the "Migration04" 
+            ///    -Not found it, so Add this migration in the table and Execute change done in it => make drop table "Departments".
+            ///
+            ///The Task is RollBack The "Migration03" without RollBack "Migration04" to remove Table "Projects" only without remove table "Products" 
+            ///1- If say [Update-Database "Migration02"] => This Will RollBack (Execute Method Down()) of all migrations after "Migration02"
+            ///   Mean that make table "Department" (Body of Down() of "Migration04") and drop tables "Products&Projects" (Body of Down() of "Migration03")
+            ///  
+            ///
+            ///2- But We need To Remove Table "Projects" only.
+            ///   -So We will remove this Table/Property [DbSet<Project> Projects] from class "DbContext"
+            ///   -No Need To Remove The Domain Model "Project" => لإنه ملوش علاقه بالداتا بيز حتى لو مسحته من الكود مش هيتمسح من الداتا بيز ، فاحنا بنمسح من الكونتكست كلاس عشان  دا اللي بيتعامل مع الداتا بثيز وبيأثر فيها
+            ///   -And then Add-Migration "Migration05" for this change "Remove Table "Projects" from DbContext "
+            ///   -So compare DbContextSnapShot file With this new migration, found that DbContextFile contain entity "Projects" and the "Migration05" Drop it, so update the DbContextSnapShot With the state of this migration.
+            ///   -And Update-Database to Reflect this change [Drop Projects table from DB].
+            ///   -Go To EfMigrationHistory column to see if in it the "Migration05" 
+            ///   -Not found it, so Add this migration in the table and Execute change done in it => make drop table "Projects".
+            ///
+            ///
+            ///Summary => 
+            ///The only case to Roll Back Migration by saying [Update-Database "MigrationName"]
+            ///If the current migration is the last migration and i need to roll back all changes done in it.
+            ///
+            ///Else => Make new migration for any change[Add-Update-Delete].
+            ///
+            ///[Update-Database 0] => This Command Will RollBack All Migrations [Execute Down() of all migrations] and remove All migrations from table EfMigrationsHistory.
+            ///Mean Drop All Database Objects like Tables
+            ///But not drop the database because the body of Down() methods of migrations not contain this Command.
+            ///Those migrations files not removed from the code mean that the DbContextSnapShot state still with the state of last migration "Migration05"
+            ///But The code now not like the Database, so if you need to remove the migrations
+            ///use [Remove-Migration] command Five times to remove each one of the five migrations.
+            ///After this the DbContextSnapShot file will removed also.
+            ///[Remove-Migration] => Execute Down() of current Migration. 
+            ///But The File DbContext class will not affected - So you need to remove the DbSets inside it.
+            ///Because if you need to make new migration, not make those DbSets as tables and you don't need them.
+            ///
+            ///If You Try To new migration and you don't make any changes the new migrationFile will added , but the body of Up() - Down() will be empty.
+            ///
+            ///To Drop database => [Drop-Database].
 
             #endregion
 
