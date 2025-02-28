@@ -11,7 +11,9 @@ namespace Demo.Data.Models
     ///
     ///EF Core Support 4 Ways for mapping the code (DBContext Class , Domain Models) to Database Objects(Tables,Views,....)
     /// 1- By Convention (Default Behavior) => EF Core Make Mapping Decisions Based on code/Syntax you write - I Don't do any effort to tell EF How to mapping.
-    ///
+    /// 2- Data Annotations [Set of Attributes]
+    /// 3- Fluent API
+    /// 
     ///   If EF Core Found in Domain Class => 
     ///     - Public Numeric Property Named as "Id" or "ClassName+Id" => Will Be Mapped As Primary Key column with identity [1,1] on the column.
     ///     - Reference Types "string" property [Not Nullable] => Mapped as column of type "nVarchar(max)" with constraint not allow null[Required].
